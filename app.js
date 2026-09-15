@@ -15,15 +15,15 @@ import {
     remove 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-// KONFIGURASI FIREBASE ANDA (Ambil dari Firebase Console -> Project Settings)
+// KONFIGURASI FIREBASE ANDA (Sudah disesuaikan formatnya, masukkan data dari Project Settings Firebase Anda)
 const firebaseConfig = {
-    apiKey: "GANTI_DENGAN_API_KEY_ANDA",
-    authDomain: "GANTI_DENGAN_AUTH_DOMAIN_ANDA",
-    databaseURL: "GANTI_DENGAN_DATABASE_URL_ANDA",
-    projectId: "GANTI_DENGAN_PROJECT_ID_ANDA",
-    storageBucket: "GANTI_DENGAN_STORAGE_BUCKET_ANDA",
-    messagingSenderId: "GANTI_DENGAN_MESSAGING_SENDER_ID_ANDA",
-    appId: "GANTI_DENGAN_APP_ID_ANDA"
+    apiKey: "AIzaSyContohAPIKeyAndaYangAsliDiSini...",
+    authDomain: "data-login-xxxxx.firebaseapp.com",
+    databaseURL: "https://data-login-xxxxx-default-rtdb.firebaseio.com",
+    projectId: "data-login-xxxxx",
+    storageBucket: "data-login-xxxxx.appspot.com",
+    messagingSenderId: "123456789012",
+    appId: "1:123456789012:web:abcdef123456"
 };
 
 // Inisialisasi Firebase
