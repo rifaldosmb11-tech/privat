@@ -14,20 +14,22 @@ import {
     onValue, 
     remove 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
 
-// KONFIGURASI FIREBASE ANDA (Sudah disesuaikan formatnya, masukkan data dari Project Settings Firebase Anda)
+// KONFIGURASI FIREBASE ANDA
 const firebaseConfig = {
-    apiKey: "AIzaSyContohAPIKeyAndaYangAsliDiSini...",
-    authDomain: "data-login-xxxxx.firebaseapp.com",
-    databaseURL: "https://data-login-xxxxx-default-rtdb.firebaseio.com",
-    projectId: "data-login-xxxxx",
-    storageBucket: "data-login-xxxxx.appspot.com",
-    messagingSenderId: "123456789012",
-    appId: "1:123456789012:web:abcdef123456"
+    apiKey: "AIzaSyBn-uDAM6-p4mqGlnQE3COQDDY4NZMXdxM",
+    authDomain: "data-login-ab566.firebaseapp.com",
+    projectId: "data-login-ab566",
+    storageBucket: "data-login-ab566.firebasestorage.app",
+    messagingSenderId: "657749656398",
+    appId: "1:657749656398:web:02b491806c0b55ae4f541f",
+    measurementId: "G-W9B1LCP02G"
 };
 
-// Inisialisasi Firebase
+// Inisialisasi Firebase & Analytics
 const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
