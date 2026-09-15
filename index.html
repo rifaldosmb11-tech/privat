@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Akun Premium</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- HALAMAN LOGIN -->
+    <div id="login-section" class="container">
+        <form id="login-form">
+            <h2>Login Admin</h2>
+            <div class="input-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required>
+            </div>
+            <button type="submit" id="btn-login">Masuk</button>
+            <p id="login-error" class="error"></p>
+        </form>
+    </div>
+
+    <!-- HALAMAN DASHBOARD -->
+    <div id="dashboard-section" class="container hidden">
+        <header>
+            <h2>Dashboard Data Premium</h2>
+            <button id="btn-logout">Keluar</button>
+        </header>
+
+        <div class="content">
+            <!-- Form Tambah Akun Premium -->
+            <div class="card">
+                <h3>Tambah Akun Premium Baru</h3>
+                <form id="add-account-form">
+                    <div class="input-group">
+                        <label>Layanan (Cth: Netflix, Spotify)</label>
+                        <input type="text" id="service-name" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Username / Email Akun</label>
+                        <input type="text" id="acc-username" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Password Akun</label>
+                        <input type="text" id="acc-password" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Tanggal Kadaluarsa</label>
+                        <input type="date" id="acc-expiry" required>
+                    </div>
+                    <button type="submit">Simpan Akun</button>
+                </form>
+            </div>
+
+            <!-- Tabel Daftar Akun -->
+            <div class="card">
+                <h3>Daftar Akun Tersimpan</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Layanan</th>
+                            <th>Username</th>
+                            <th>Password</th>
+                            <th>Expired</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="account-table-body">
+                        <!-- Data akan dimasukkan secara dinamis via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK (Modular Version) -->
+    <script type="module" src="app.js"></script>
+</body>
+</html>
