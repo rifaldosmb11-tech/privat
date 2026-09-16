@@ -1,459 +1,536 @@
-// =====================================================
-// FIREBASE SDK v10 (Modular) - REALTIME DATABASE INTEGRATED
-// =====================================================
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import {
-    getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import {
-    getDatabase, ref, push, set, onValue, remove, update
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+javascript
+import { initializeApp } from
+  "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 
-// Konfigurasi Firebase Anda
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut
+} from
+  "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  deleteDoc,
+  doc,
+  query,
+  orderBy,
+  onSnapshot,
+  serverTimestamp
+} from
+  "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-    apiKey: "AIzaSyBn-uDAM6-p4mqGlnQE3COQDDY4NZMXdxM",
-    authDomain: "data-login-ab566.firebaseapp.com",
-    projectId: "data-login-ab566",
-    storageBucket: "data-login-ab566.firebasestorage.app",
-    messagingSenderId: "657749656398",
-    appId: "1:657749656398:web:02b491806c0b55ae4f541f",
-    measurementId: "G-W9B1LCP02G"
+  apiKey: "AIzaSyBn-uDAM6-p4mqGlnQE3COQDDY4NZMXdxM",
+  authDomain: "data-login-ab566.firebaseapp.com",
+  projectId: "data-login-ab566",
+  storageBucket: "data-login-ab566.firebasestorage.app",
+  messagingSenderId: "657749656398",
+  appId: "1:657749656398:web:02b491806c0b55ae4f541f",
+  measurementId: "G-W9B1LCP02G"
 };
 
-// Inisialisasi Firebase & Realtime Database
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
+
+// ==================================================
+// INITIALIZE FIREBASE
+// ==================================================
+
+const app = initializeApp(firebaseConfig);
+
 const auth = getAuth(app);
-const db = getDatabase(app);
 
-// ===== DOM ELEMENTS =====
-const loginSection = document.getElementById('login-section');
-const dashboardSection = document.getElementById('dashboard-section');
-const loginForm = document.getElementById('login-form');
-const loginError = document.getElementById('login-error');
-const btnLogout = document.getElementById('btn-logout');
-const addAccountForm = document.getElementById('add-account-form');
-const accountList = document.getElementById('account-list');
-const searchInput = document.getElementById('search-input');
-const userEmail = document.getElementById('user-email');
-const dataCount = document.getElementById('data-count');
-const statTotalMini = document.getElementById('stat-total-mini');
-const modalConfirm = document.getElementById('modal-confirm');
-const modalCancel = document.getElementById('modal-cancel');
-const modalYes = document.getElementById('modal-confirm-yes');
-const toastContainer = document.getElementById('toast-container');
+const db = getFirestore(app);
 
-// PIN Security Elements
-const modalPin = document.getElementById('modal-pin');
-const pinModalTitle = document.getElementById('pin-modal-title');
-const pinModalDesc = document.getElementById('pin-modal-desc');
-const pinInputField = document.getElementById('pin-input-field');
-const pinModalCancel = document.getElementById('pin-modal-cancel');
-const pinModalSubmit = document.getElementById('pin-modal-submit');
-const lastPinChangeEl = document.getElementById('last-pin-change');
 
-let accountsCache = {};
-let pendingDeleteId = null;
-let currentPinAction = null; 
+// ==================================================
+// ELEMENT
+// ==================================================
 
-// =====================================================
-// TOAST NOTIFICATION
-// =====================================================
-function showToast(message, type = 'info') {
-    const icons = { success: 'fa-circle-check', error: 'fa-circle-xmark', info: 'fa-circle-info' };
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.innerHTML = `<i class="fa-solid ${icons[type]}"></i><span>${message}</span>`;
-    toastContainer.appendChild(toast);
-    setTimeout(() => {
-        toast.classList.add('out');
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
-}
+const loginPage =
+  document.getElementById("loginPage");
 
-// =====================================================
-// AUTH STATE & SECURITY METADATA LOAD
-// =====================================================
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        loginSection.classList.add('hidden');
-        dashboardSection.classList.remove('hidden');
-        userEmail.textContent = user.email;
-        loadAccounts();
-        loadSecurityMeta();
-    } else {
-        loginSection.classList.remove('hidden');
-        dashboardSection.classList.add('hidden');
-        accountsCache = {};
-    }
-});
+const dashboardPage =
+  document.getElementById("dashboardPage");
 
-// =====================================================
+const loginForm =
+  document.getElementById("loginForm");
+
+const logoutBtn =
+  document.getElementById("logoutBtn");
+
+const dataForm =
+  document.getElementById("dataForm");
+
+const dataList =
+  document.getElementById("dataList");
+
+const userEmail =
+  document.getElementById("userEmail");
+
+const totalData =
+  document.getElementById("totalData");
+
+const activeData =
+  document.getElementById("activeData");
+
+const dataCount =
+  document.getElementById("dataCount");
+
+const loginMessage =
+  document.getElementById("loginMessage");
+
+const saveMessage =
+  document.getElementById("saveMessage");
+
+const connectionDot =
+  document.getElementById("connectionDot");
+
+const connectionText =
+  document.getElementById("connectionText");
+
+
+// ==================================================
 // LOGIN
-// =====================================================
-loginForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    loginError.textContent = '';
+// ==================================================
 
-    signInWithEmailAndPassword(auth, email, password)
-        .then(() => showToast('Login berhasil. Selamat datang!', 'success'))
-        .catch((err) => {
-            loginError.textContent = 'Login gagal: ' + err.message;
-            showToast('Login gagal', 'error');
-        });
-});
+loginForm.addEventListener(
+  "submit",
+  async (event) => {
 
-// =====================================================
-// LOGOUT
-// =====================================================
-btnLogout.addEventListener('click', () => {
-    signOut(auth)
-        .then(() => showToast('Berhasil logout', 'info'))
-        .catch((err) => showToast('Gagal logout: ' + err.message, 'error'));
-});
+    event.preventDefault();
 
-// =====================================================
-// TOGGLE PASSWORD VISIBILITY
-// =====================================================
-document.querySelectorAll('.toggle-pass').forEach(btn => {
-    btn.addEventListener('click', () => {
-        const target = document.getElementById(btn.dataset.target);
-        const icon = btn.querySelector('i');
-        if (target.type === 'password') {
-            target.type = 'text';
-            icon.classList.replace('fa-eye', 'fa-eye-slash');
-        } else {
-            target.type = 'password';
-            icon.classList.replace('fa-eye-slash', 'fa-eye');
-        }
-    });
-});
+    const email =
+      document.getElementById("email").value.trim();
 
-// =====================================================
-// PASSWORD STRENGTH METER
-// =====================================================
-const accPasswordInput = document.getElementById('acc-password');
-const strengthFill = document.getElementById('strength-fill');
-const strengthLabel = document.getElementById('strength-label');
+    const password =
+      document.getElementById("password").value;
 
-if (accPasswordInput) {
-    accPasswordInput.addEventListener('input', () => {
-        const val = accPasswordInput.value;
-        let score = 0;
-        if (val.length >= 6) score++;
-        if (val.length >= 10) score++;
-        if (/[A-Z]/.test(val)) score++;
-        if (/[0-9]/.test(val)) score++;
-        if (/[^A-Za-z0-9]/.test(val)) score++;
+    loginMessage.textContent =
+      "Memproses login...";
 
-        const pct = Math.min(score * 20, 100);
-        strengthFill.style.width = pct + '%';
-        strengthFill.classList.remove('strong', 'medium');
+    try {
 
-        let label = 'Lemah';
-        if (score >= 4) { label = 'Kuat'; strengthFill.classList.add('strong'); }
-        else if (score >= 3) { label = 'Sedang'; strengthFill.classList.add('medium'); }
-        else if (score >= 2) { label = 'Cukup'; }
+      await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
 
-        strengthLabel.textContent = label;
-    });
-}
+      loginMessage.textContent = "";
 
-// =====================================================
-// PASSWORD GENERATOR
-// =====================================================
-const genPassBtn = document.getElementById('gen-pass');
-if (genPassBtn) {
-    genPassBtn.addEventListener('click', () => {
-        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%&*';
-        let pass = '';
-        for (let i = 0; i < 16; i++) {
-            pass += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        accPasswordInput.value = pass;
-        accPasswordInput.dispatchEvent(new Event('input'));
-        accPasswordInput.type = 'text';
-        const eyeIcon = document.querySelector('[data-target="acc-password"] i');
-        if (eyeIcon) eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
-        showToast('Password kuat digenerate!', 'success');
-    });
-}
+    } catch (error) {
 
-// =====================================================
-// SUBMIT NEW ACCOUNT (REAL-TIME SAVE TO DATABASE)
-// =====================================================
-addAccountForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const serviceName = document.getElementById('service-name').value.trim();
-    const username = document.getElementById('acc-username').value.trim();
-    const password = accPasswordInput.value;
-    const expiry = document.getElementById('acc-expiry').value;
+      console.error(error);
 
-    if (!serviceName || !username || !password || !expiry) {
-        showToast('Semua field wajib diisi!', 'error');
-        return;
+      loginMessage.textContent =
+        getFirebaseError(error);
+
     }
 
-    const accountsRef = ref(db, 'accounts');
-    const newAccountRef = push(accountsRef);
+  }
+);
 
-    set(newAccountRef, {
-        service: serviceName,
-        username: username,
-        password: password,
-        expiry: expiry,
-        createdAt: Date.now()
-    })
-    .then(() => {
-        addAccountForm.reset();
-        if (strengthFill) strengthFill.style.width = '0%';
-        if (strengthLabel) strengthLabel.textContent = 'Lemah';
-        showToast('Kredensial berhasil disimpan secara real-time!', 'success');
-    })
-    .catch((err) => showToast('Gagal menyimpan: ' + err.message, 'error'));
-});
 
-// =====================================================
-// LOAD ACCOUNTS & SECURITY META (REALTIME LISTENERS)
-// =====================================================
-function loadAccounts() {
-    const accountsRef = ref(db, 'accounts');
-    onValue(accountsRef, (snapshot) => {
-        accountsCache = snapshot.val() || {};
-        renderAccounts();
-    });
-}
+// ==================================================
+// AUTH STATE
+// ==================================================
 
-function loadSecurityMeta() {
-    const metaRef = ref(db, 'security/meta');
-    onValue(metaRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data && data.lastPinChange) {
-            lastPinChangeEl.textContent = data.lastPinChange;
-        } else {
-            lastPinChangeEl.textContent = 'Belum pernah';
-        }
-    });
-}
+onAuthStateChanged(
+  auth,
+  (user) => {
 
-// =====================================================
-// RENDER ACCOUNTS
-// =====================================================
-function renderAccounts() {
-    const search = (searchInput.value || '').toLowerCase().trim();
-    const entries = Object.entries(accountsCache)
-        .filter(([id, acc]) => {
-            if (!search) return true;
-            return (acc.service || '').toLowerCase().includes(search)
-                || (acc.username || '').toLowerCase().includes(search);
-        })
-        .sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
+    if (user) {
 
-    dataCount.textContent = entries.length;
-    statTotalMini.textContent = Object.keys(accountsCache).length;
+      loginPage.classList.add("hidden");
 
-    if (entries.length === 0) {
-        accountList.innerHTML = `
-            <div class="empty-state">
-                <i class="fa-solid fa-inbox"></i>
-                <p>${search ? 'Tidak ada hasil pencarian' : 'Belum ada data kredensial tersimpan'}</p>
-            </div>
-        `;
-        return;
-    }
+      dashboardPage.classList.remove("hidden");
 
-    accountList.innerHTML = entries.map(([id, acc]) => {
-        const initial = (acc.service || '?').charAt(0).toUpperCase();
-        const expiryBadge = getExpiryBadge(acc.expiry);
-        return `
-            <div class="account-item" data-id="${id}">
-                <div class="acc-avatar">${initial}</div>
-                <div class="acc-info">
-                    <div class="acc-service">${escapeHtml(acc.service || '-')}</div>
-                    <div class="acc-meta">
-                        <span class="user"><i class="fa-regular fa-user" style="margin-right:4px"></i>${escapeHtml(acc.username || '-')}</span>
-                        <span class="pass masked" data-pass="${escapeHtml(acc.password || '')}">••••••••••</span>
-                        ${expiryBadge}
-                    </div>
-                </div>
-                <div class="acc-actions">
-                    <button class="action-btn toggle-view" data-id="${id}" title="Lihat password">
-                        <i class="fa-regular fa-eye"></i>
-                    </button>
-                    <button class="action-btn copy-user" data-id="${id}" title="Copy username">
-                        <i class="fa-regular fa-user"></i>
-                    </button>
-                    <button class="action-btn copy-pass" data-id="${id}" title="Copy password">
-                        <i class="fa-solid fa-key"></i>
-                    </button>
-                    <button class="action-btn danger delete-acc" data-id="${id}" title="Hapus">
-                        <i class="fa-regular fa-trash-can"></i>
-                    </button>
-                </div>
-            </div>
-        `;
-    }).join('');
+      userEmail.textContent =
+        user.email;
 
-    // Attach dynamic events
-    accountList.querySelectorAll('.toggle-view').forEach(btn => {
-        btn.addEventListener('click', () => toggleView(btn));
-    });
-    accountList.querySelectorAll('.copy-user').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const acc = accountsCache[btn.dataset.id];
-            if (acc) copyText(acc.username, 'Username disalin!');
-        });
-    });
-    accountList.querySelectorAll('.copy-pass').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const acc = accountsCache[btn.dataset.id];
-            if (acc) copyText(acc.password, 'Password disalin!');
-        });
-    });
-    accountList.querySelectorAll('.delete-acc').forEach(btn => {
-        btn.addEventListener('click', () => openDeleteModal(btn.dataset.id));
-    });
-}
+      startRealtimeData(user.uid);
 
-// =====================================================
-// EXPIRY BADGE
-// =====================================================
-function getExpiryBadge(expiry) {
-    if (!expiry) return '';
-    const today = new Date(); today.setHours(0,0,0,0);
-    const exp = new Date(expiry);
-    const diff = Math.ceil((exp - today) / (1000 * 60 * 60 * 24));
-
-    let cls = 'ok', text = '';
-    if (diff < 0) { cls = 'expired'; text = 'EXPIRED'; }
-    else if (diff <= 7) { cls = 'warning'; text = `${diff}H`; }
-    else { text = `${diff}H`; }
-
-    return `<span class="badge ${cls}" style="
-        padding: 3px 8px; border-radius: 6px; font-size: 10px;
-        font-weight: 700; letter-spacing: 1px;
-        ${cls === 'ok' ? 'background:rgba(0,255,136,0.1);color:var(--green);border:1px solid rgba(0,255,136,0.3)' : ''}
-        ${cls === 'warning' ? 'background:rgba(255,187,51,0.1);color:var(--yellow);border:1px solid rgba(255,187,51,0.3)' : ''}
-        ${cls === 'expired' ? 'background:rgba(255,51,102,0.1);color:var(--red);border:1px solid rgba(255,51,102,0.3)' : ''}
-    ">${text}</span>`;
-}
-
-// =====================================================
-// TOGGLE VIEW PASSWORD
-// =====================================================
-function toggleView(btn) {
-    const item = btn.closest('.account-item');
-    const passEl = item.querySelector('.pass');
-    const realPass = passEl.dataset.pass;
-    const icon = btn.querySelector('i');
-
-    if (passEl.classList.contains('masked')) {
-        passEl.textContent = realPass || '(kosong)';
-        passEl.classList.remove('masked');
-        icon.classList.replace('fa-eye', 'fa-eye-slash');
     } else {
-        passEl.textContent = '••••••••••';
-        passEl.classList.add('masked');
-        icon.classList.replace('fa-eye-slash', 'fa-eye');
-    }
-}
 
-// =====================================================
-// COPY TO CLIPBOARD
-// =====================================================
-function copyText(text, message) {
-    if (!text) return showToast('Tidak ada data untuk disalin', 'error');
-    navigator.clipboard.writeText(text)
-        .then(() => showToast(message, 'success'))
-        .catch(() => showToast('Gagal menyalin', 'error'));
-}
+      loginPage.classList.remove("hidden");
 
-// =====================================================
-// DELETE MODAL (REALTIME REMOVE)
-// =====================================================
-function openDeleteModal(id) {
-    pendingDeleteId = id;
-    modalConfirm.classList.remove('hidden');
-}
-modalCancel.addEventListener('click', () => {
-    modalConfirm.classList.add('hidden');
-    pendingDeleteId = null;
-});
-modalYes.addEventListener('click', () => {
-    if (!pendingDeleteId) return;
-    const accountRef = ref(db, `accounts/${pendingDeleteId}`);
-    remove(accountRef)
-        .then(() => showToast('Kredensial berhasil dihapus secara real-time', 'success'))
-        .catch((err) => showToast('Gagal hapus: ' + err.message, 'error'));
-    modalConfirm.classList.add('hidden');
-    pendingDeleteId = null;
-});
+      dashboardPage.classList.add("hidden");
 
-// =====================================================
-// PIN SECURITY FUNCTIONS (CHANGE & RESET PIN)
-// =====================================================
-document.getElementById('btn-change-pin').addEventListener('click', () => {
-    currentPinAction = 'change';
-    pinModalTitle.textContent = 'CHANGE PIN';
-    pinModalDesc.textContent = 'Masukkan PIN keamanan baru Anda (4-6 digit).';
-    pinInputField.value = '';
-    modalPin.classList.remove('hidden');
-});
+      userEmail.textContent = "-";
 
-document.getElementById('btn-reset-pin').addEventListener('click', () => {
-    currentPinAction = 'reset';
-    pinModalTitle.textContent = 'RESET MASTER PIN';
-    pinModalDesc.textContent = 'Masukkan PIN master baru untuk mereset sistem.';
-    pinInputField.value = '';
-    modalPin.classList.remove('hidden');
-});
-
-pinModalCancel.addEventListener('click', () => {
-    modalPin.classList.add('hidden');
-    pinInputField.value = '';
-});
-
-pinModalSubmit.addEventListener('click', () => {
-    const newPin = pinInputField.value.trim();
-    if (!newPin || newPin.length < 4) {
-        showToast('PIN minimal harus 4 digit!', 'error');
-        return;
     }
 
-    const formattedDate = new Date().toLocaleString('id-ID', {
-        dateStyle: 'medium',
-        timeStyle: 'short'
-    });
+  }
+);
 
-    const securityRef = ref(db, 'security/meta');
-    update(securityRef, {
-        pin: newPin,
-        lastPinChange: formattedDate,
-        actionType: currentPinAction
-    })
-    .then(() => {
-        showToast(currentPinAction === 'change' ? 'PIN berhasil diubah secara real-time!' : 'PIN berhasil di-reset secara real-time!', 'success');
-        modalPin.classList.add('hidden');
-        pinInputField.value = '';
-    })
-    .catch((err) => {
-        showToast('Gagal memperbarui PIN: ' + err.message, 'error');
-    });
-});
 
-// =====================================================
-// SEARCH
-// =====================================================
-searchInput.addEventListener('input', renderAccounts);
+// ==================================================
+// LOGOUT
+// ==================================================
 
-// =====================================================
-// HELPERS
-// =====================================================
-function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, c => ({
-        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-    }[c]));
+logoutBtn.addEventListener(
+  "click",
+  async () => {
+
+    await signOut(auth);
+
+  }
+);
+
+
+// ==================================================
+// SIMPAN DATA
+// ==================================================
+
+dataForm.addEventListener(
+  "submit",
+  async (event) => {
+
+    event.preventDefault();
+
+    const user = auth.currentUser;
+
+    if (!user) {
+
+      saveMessage.textContent =
+        "Silakan login terlebih dahulu.";
+
+      return;
+
+    }
+
+    const name =
+      document.getElementById("dataName").value.trim();
+
+    const value =
+      document.getElementById("dataValue").value.trim();
+
+    if (!name || !value) return;
+
+    try {
+
+      await addDoc(
+        collection(
+          db,
+          "dashboardData"
+        ),
+        {
+
+          uid: user.uid,
+
+          name: name,
+
+          value: value,
+
+          active: true,
+
+          createdAt: serverTimestamp(),
+
+          updatedAt: serverTimestamp()
+
+        }
+      );
+
+      dataForm.reset();
+
+      saveMessage.textContent =
+        "Data berhasil disimpan.";
+
+      setTimeout(() => {
+
+        saveMessage.textContent = "";
+
+      }, 2000);
+
+    } catch (error) {
+
+      console.error(error);
+
+      saveMessage.textContent =
+        "Gagal menyimpan data.";
+
+    }
+
+  }
+);
+
+
+// ==================================================
+// REALTIME FIRESTORE
+// ==================================================
+
+function startRealtimeData(uid) {
+
+  const q = query(
+
+    collection(
+      db,
+      "dashboardData"
+    ),
+
+    orderBy(
+      "createdAt",
+      "desc"
+    )
+
+  );
+
+
+  onSnapshot(
+
+    q,
+
+    (snapshot) => {
+
+      const data = [];
+
+      snapshot.forEach(
+        (item) => {
+
+          const itemData =
+            item.data();
+
+          // Hanya data milik user login
+          if (itemData.uid === uid) {
+
+            data.push({
+
+              id: item.id,
+
+              ...itemData
+
+            });
+
+          }
+
+        }
+      );
+
+
+      renderData(data);
+
+      setConnection(
+        true
+      );
+
+    },
+
+    (error) => {
+
+      console.error(error);
+
+      setConnection(
+        false
+      );
+
+    }
+
+  );
+
+}
+
+
+// ==================================================
+// RENDER DATA
+// ==================================================
+
+function renderData(data) {
+
+  totalData.textContent =
+    data.length;
+
+  activeData.textContent =
+    data.filter(
+      item => item.active === true
+    ).length;
+
+  dataCount.textContent =
+    `${data.length} DATA`;
+
+
+  if (data.length === 0) {
+
+    dataList.innerHTML = `
+      <div class="empty">
+        Belum ada data tersimpan.
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  dataList.innerHTML =
+    data.map(
+      item => `
+
+        <div class="data-card">
+
+          <div>
+
+            <h3>
+              ${escapeHTML(item.name)}
+            </h3>
+
+            <p>
+              ${escapeHTML(item.value)}
+            </p>
+
+          </div>
+
+          <div class="data-actions">
+
+            <button
+              class="btn-delete"
+              onclick="deleteData('${item.id}')"
+            >
+              HAPUS
+            </button>
+
+          </div>
+
+        </div>
+
+      `
+    ).join("");
+
+}
+
+
+// ==================================================
+// DELETE DATA
+// ==================================================
+
+window.deleteData =
+  async function(id) {
+
+    const user =
+      auth.currentUser;
+
+    if (!user) return;
+
+
+    const confirmDelete =
+      confirm(
+        "Hapus data ini?"
+      );
+
+    if (!confirmDelete) return;
+
+
+    try {
+
+      await deleteDoc(
+        doc(
+          db,
+          "dashboardData",
+          id
+        )
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(
+        "Gagal menghapus data."
+      );
+
+    }
+
+  };
+
+
+// ==================================================
+// CONNECTION
+// ==================================================
+
+function setConnection(online) {
+
+  if (online) {
+
+    connectionDot.style.background =
+      "#00ff88";
+
+    connectionText.textContent =
+      "REALTIME ONLINE";
+
+  } else {
+
+    connectionDot.style.background =
+      "#ff4444";
+
+    connectionText.textContent =
+      "CONNECTION ERROR";
+
+  }
+
+}
+
+
+// ==================================================
+// FIREBASE ERROR
+// ==================================================
+
+function getFirebaseError(error) {
+
+  switch (error.code) {
+
+    case "auth/invalid-credential":
+      return "Email atau password salah.";
+
+    case "auth/user-not-found":
+      return "User tidak ditemukan.";
+
+    case "auth/wrong-password":
+      return "Password salah.";
+
+    case "auth/invalid-email":
+      return "Format email tidak valid.";
+
+    case "auth/too-many-requests":
+      return "Terlalu banyak percobaan login.";
+
+    default:
+      return "Login gagal. Silakan coba lagi.";
+
+  }
+
+}
+
+
+// ==================================================
+// SECURITY HTML
+// ==================================================
+
+function escapeHTML(value) {
+
+  return String(value)
+
+    .replaceAll("&", "&amp;")
+
+    .replaceAll("<", "&lt;")
+
+    .replaceAll(">", "&gt;")
+
+    .replaceAll('"', "&quot;")
+
+    .replaceAll("'", "&#039;");
+
 }
