@@ -10,8 +10,7 @@
 </head>
 <body>
 
-<!-- Starfield background -->
-<canvas id="stars"></canvas>
+<!-- Cyberpunk Video Background / Starfield -->
 <div class="grid-bg"></div>
 
 <!-- ================= LOGIN ================= -->
@@ -78,7 +77,7 @@
         <div class="topbar-right">
             <div class="live-indicator">
                 <span class="dot"></span>
-                <span>REALTIME</span>
+                <span>REALTIME ACTIVE</span>
             </div>
             <button id="btn-logout" class="btn-logout">
                 <i class="fa-solid fa-right-from-bracket"></i>
@@ -132,12 +131,7 @@
                         <span class="strength-label" id="strength-label">Lemah</span>
                     </div>
 
-                    <div class="input-group">
-                        <label>Tanggal Kadaluarsa</label>
-                        <div class="input-wrap">
-                            <input type="date" id="acc-expiry" required>
-                        </div>
-                    </div>
+                    <!-- Input Tanggal Kadaluarsa Telah Dihapus Sesuai Permintaan -->
 
                     <button type="submit" class="btn-neon">
                         <i class="fa-solid fa-floppy-disk"></i>
@@ -196,7 +190,7 @@
             <div class="card neon-border tall">
                 <div class="card-title">
                     <i class="fa-solid fa-shield"></i>
-                    <h3>Terpenjara Data (<span id="data-count">0</span>)</h3>
+                    <h3>Vault Kredensial (<span id="data-count">0</span>)</h3>
                 </div>
 
                 <!-- SEARCH -->
@@ -218,7 +212,7 @@
     </section>
 </div>
 
-<!-- ============ MODAL KONFIRMASI ============ -->
+<!-- ============ MODAL KONFIRMASI HAPUS ============ -->
 <div id="modal-confirm" class="modal-overlay hidden">
     <div class="modal-box neon-border">
         <div class="modal-icon">
@@ -229,6 +223,28 @@
         <div class="modal-actions">
             <button id="modal-cancel" class="btn-ghost">BATAL</button>
             <button id="modal-confirm-yes" class="btn-danger">HAPUS</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============ MODAL PIN (CHANGE / RESET) ============ -->
+<div id="modal-pin" class="modal-overlay hidden">
+    <div class="modal-box neon-border">
+        <div class="modal-icon">
+            <i class="fa-solid fa-key"></i>
+        </div>
+        <h3 id="pin-modal-title">CHANGE PIN</h3>
+        <p id="pin-modal-desc">Masukkan PIN keamanan baru Anda (4-6 digit).</p>
+        
+        <div class="input-group" style="margin-top: 15px; text-align: left;">
+            <div class="input-wrap">
+                <input type="password" id="pin-input-field" placeholder="Masukkan PIN..." maxlength="6" style="text-align: center; letter-spacing: 4px;">
+            </div>
+        </div>
+
+        <div class="modal-actions" style="margin-top: 20px;">
+            <button id="pin-modal-cancel" class="btn-ghost">BATAL</button>
+            <button id="pin-modal-submit" class="btn-neon" style="padding: 10px 20px; font-size: 14px;">KONFIRMASI</button>
         </div>
     </div>
 </div>
